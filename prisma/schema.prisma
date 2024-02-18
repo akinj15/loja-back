@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String   @id @default(uuid())
+  email    String   @unique
+  name     String?
+  token    String?
+  password String?
+  role     Role     @default(USER)
+  orders   Order[]
+  profile  Profile?
+}
+
+model Profile {
+  id     String @id @default(uuid())
+  bio    String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+}
+
+model Products {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  key       Int
+  image     String
+  class     String
+  brand     String
+  ncm       String
+  ean       String
+  code      String   @unique
+  stock     Int?
+  published Boolean  @default(false)
+  active    Boolean  @default(false)
+  price     Float
+  orders    Order[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Order {
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  key       Int
+  published Boolean    @default(false)
+  author    User       @relation(fields: [authorId], references: [id])
+  authorId  String
+  total     Float
+  discount  Float
+  products  Products[]
+  payments  Payment[]
+  client    Client[]
+}
+
+model Payment {
+  id          String  @id @default(uuid())
+  name        String
+  orders      Order[]
+  key         Int
+  code        String
+  type        String
+  nummax      Int
+  nummin      Int
+  minvalue    Float
+  flag        String
+  authorizer  String
+  installment String
+}
+
+model Client {
+  id           String  @id @default(uuid())
+  name         String
+  code         String
+  class        String
+  neighborhood String
+  complement   String
+  country      String
+  number       String
+  fone         String
+  state        String
+  city         String
+  street       String
+  cgccpf       String
+  cep          String
+  key          Int
+  orders       Order[]
+}
